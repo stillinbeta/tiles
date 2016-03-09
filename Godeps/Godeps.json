@@ -1,0 +1,5 @@
+{
+	"ImportPath": "github.com/stillinbeta/tiles",
+	"GoVersion": "go1.6",
+	"Deps": []
+}
