@@ -14,6 +14,14 @@ import (
 	"time"
 )
 
+func httpHost() string {
+	host := os.Getenv("DOMAIN")
+	if host == "" {
+		host = "gotiles.herokai.com"
+	}
+	return host
+}
+
 func main() {
 	log.Printf("%v\n", os.Args)
 	http.HandleFunc("/marco", func(w http.ResponseWriter, r *http.Request) {
@@ -96,13 +104,13 @@ func newGopherTilesHandler() http.Handler {
 		}
 		io.WriteString(w, "<html><body>")
 		fmt.Fprintf(w, "A grid of %d tiled images is below. Compare:<p>", xt*yt)
-		/*for _, ms := range []int{0, 30, 200, 1000} {
+		for _, ms := range []int{0, 30, 200, 1000} {
 			d := time.Duration(ms) * nanosPerMilli
 			fmt.Fprintf(w, "[<a href='https://%s/gophertiles?latency=%d'>HTTP/2, %v latency</a>] [<a href='http://%s/gophertiles?latency=%d'>HTTP/1, %v latency</a>]<br>\n",
-				httpsHost(), ms, d,
+				httpHost(), ms, d,
 				httpHost(), ms, d,
 			)
-		} */
+		}
 		io.WriteString(w, "<p>\n")
 		cacheBust := time.Now().UnixNano()
 		for y := 0; y < yt; y++ {
@@ -112,6 +120,15 @@ func newGopherTilesHandler() http.Handler {
 			}
 			io.WriteString(w, "<br/>\n")
 		}
-		io.WriteString(w, "<hr><a href='/'>&lt;&lt Back to Go HTTP/2 demo server</a></body></html>")
+		io.WriteString(w, `<p><div id='loadtimes'></div></p>
+		<script>
+		function showtimes() {
+			var times = 'Times from connection start:<br>'
+			times += 'DOM loaded: ' + (window.performance.timing.domContentLoadedEventEnd - window.performance.timing.connectStart) + 'ms<br>'
+			times += 'DOM complete (images loaded): ' + (window.performance.timing.domComplete - window.performance.timing.connectStart) + 'ms<br>'
+			document.getElementById('loadtimes').innerHTML = times
+		}
+		</script>
+		<hr><a href='/'>&lt;&lt Back to Go HTTP/2 demo server</a></body></html>`)
 	})
 }
